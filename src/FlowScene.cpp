@@ -19,7 +19,9 @@
 #include "Node.hpp"
 #include "NodeGraphicsObject.hpp"
 
-#include "NodeGraphicsObject.hpp"
+#include "NodeGroup.hpp"
+#include "NodeGroupGraphicsObject.hpp"
+
 #include "ConnectionGraphicsObject.hpp"
 
 #include "Connection.hpp"
@@ -30,6 +32,8 @@
 using QtNodes::FlowScene;
 using QtNodes::Node;
 using QtNodes::NodeGraphicsObject;
+using QtNodes::NodeGroup;
+using QtNodes::NodeGroupGraphicsObject;
 using QtNodes::Connection;
 using QtNodes::DataModelRegistry;
 using QtNodes::NodeDataModel;
@@ -256,6 +260,19 @@ removeNode(Node& node)
   }
 
   _nodes.erase(node.id());
+}
+
+QtNodes::NodeGroup &FlowScene::createGroup(QRectF rubberBandRect)
+{
+    auto group = detail::make_unique<NodeGroup>();
+    auto ggo  = detail::make_unique<NodeGroupGraphicsObject>(rubberBandRect, *this, *group);
+
+    group->setGraphicsObject(std::move(ggo));
+
+    auto groupPtr = group.get();
+    _groups[group->id()] = std::move(group);
+
+    return *groupPtr;
 }
 
 

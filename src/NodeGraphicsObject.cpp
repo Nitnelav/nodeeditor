@@ -107,12 +107,6 @@ embedQWidget()
 
     geom.recalculateSize();
 
-    if (w->sizePolicy().verticalPolicy() & QSizePolicy::ExpandFlag)
-    {
-      // If the widget wants to use as much vertical space as possible, set it to have the geom's equivalentWidgetHeight.
-      _proxyWidget->setMinimumHeight(geom.equivalentWidgetHeight());
-    }
-
     _proxyWidget->setPos(geom.widgetPosition());
 
     update();
@@ -332,6 +326,24 @@ mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
   auto & state = _node.nodeState();
 
   state.setResizing(false);
+
+  auto items = _scene.items(mapToScene(boundingRect()).boundingRect());
+  int count = 0;
+  for (QGraphicsItem* group: items)
+  {
+    if (group->type() == QGraphicsItem::UserType + 2)
+    {
+        QPointF position = group->mapFromScene(scenePos());
+        setParentItem(group);
+        setPos(position);
+        count++;
+    }
+  }
+  if (count == 0) {
+      QPointF position = scenePos();
+      setParentItem(nullptr);
+      setPos(position);
+  }
 
   QGraphicsObject::mouseReleaseEvent(event);
 

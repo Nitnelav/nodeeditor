@@ -1,65 +1,54 @@
 #pragma once
 
 #include <QtCore/QUuid>
-#include <QtWidgets/QGraphicsItem>
 #include <QtWidgets/QGraphicsObject>
+#include <QPainter>
+#include <QGraphicsSceneHoverEvent>
+#include <QApplication>
+#include <QMenu>
 
 #include "Connection.hpp"
 
+#include "FlowScene.hpp"
 #include "NodeGeometry.hpp"
 #include "NodeState.hpp"
-
-class QGraphicsProxyWidget;
 
 namespace QtNodes
 {
 
 class FlowScene;
 class FlowItemEntry;
+class NodeGroup;
 
-/// Class reacts on GUI events, mouse clicks and
-/// forwards painting operation.
-class NodeGraphicsObject : public QGraphicsObject
+class NodeGroupGraphicsObject : public QGraphicsObject
 {
-  Q_OBJECT
-
+    Q_OBJECT
 public:
-  NodeGraphicsObject(FlowScene &scene,
-                     Node& node);
+    NodeGroupGraphicsObject(QRectF rubberBandRect, FlowScene &scene, NodeGroup& nodeGroup);
 
-  virtual
-  ~NodeGraphicsObject();
+    virtual ~NodeGroupGraphicsObject();
 
-  Node&
-  node();
+    NodeGroup&
+    nodeGroup();
 
-  Node const&
-  node() const;
+    NodeGroup const&
+    nodeGroup() const;
 
-  QRectF
-  boundingRect() const override;
+    QRectF
+    boundingRect() const override;
 
-  void
-  setGeometryChanged();
+    enum { Type = UserType + 2 };
 
-  /// Visits all attached connections and corrects
-  /// their corresponding end points.
-  void
-  moveConnections() const;
+    int type() const override { return Type; }
 
-  enum { Type = UserType + 1 };
-
-  int
-  type() const override { return Type; }
-
-  void
-  lock(bool locked);
+    QRectF resizeRect() const;
+    QPolygonF resizePoly() const;
 
 protected:
   void
   paint(QPainter*                       painter,
         QStyleOptionGraphicsItem const* option,
-        QWidget*                        widget = 0) override;
+        QWidget*                        widget = nullptr) override;
 
   QVariant
   itemChange(GraphicsItemChange change, const QVariant &value) override;
@@ -89,18 +78,17 @@ protected:
   contextMenuEvent(QGraphicsSceneContextMenuEvent* event) override;
 
 private:
-  void
-  embedQWidget();
-
-private:
 
   FlowScene & _scene;
 
-  Node& _node;
+  NodeGroup& _nodeGroup;
 
-  bool _locked;
+  double _width;
+  double _height;
+  QPointF _topLeft;
 
-  // either nullptr or owned by parent QGraphicsItem
-  QGraphicsProxyWidget * _proxyWidget;
+  bool _hovered = false;
+  bool _resizing = false;
+
 };
 }

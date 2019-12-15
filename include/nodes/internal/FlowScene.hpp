@@ -20,6 +20,8 @@ class NodeDataModel;
 class FlowItemInterface;
 class Node;
 class NodeGraphicsObject;
+class NodeGroup;
+class NodeGroupGraphicsObject;
 class Connection;
 class ConnectionGraphicsObject;
 class NodeStyle;
@@ -61,6 +63,8 @@ public:
   Node&restoreNode(QJsonObject const& nodeJson);
 
   void removeNode(Node& node);
+
+  NodeGroup& createGroup(QRectF rubberBandRect);
 
   DataModelRegistry&registry() const;
 
@@ -134,13 +138,17 @@ Q_SIGNALS:
 
   void nodeContextMenu(Node& n, const QPointF& pos);
 
+  void groupContextMenu(NodeGroup& g, const QPointF& pos);
+
 private:
 
   using SharedConnection = std::shared_ptr<Connection>;
   using UniqueNode       = std::unique_ptr<Node>;
+  using UniqueGroup      = std::unique_ptr<NodeGroup>;
 
   std::unordered_map<QUuid, SharedConnection> _connections;
   std::unordered_map<QUuid, UniqueNode>       _nodes;
+  std::unordered_map<QUuid, UniqueGroup>      _groups;
   std::shared_ptr<DataModelRegistry>          _registry;
 
 private Q_SLOTS:

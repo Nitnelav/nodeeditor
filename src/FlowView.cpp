@@ -20,11 +20,14 @@
 #include "DataModelRegistry.hpp"
 #include "Node.hpp"
 #include "NodeGraphicsObject.hpp"
+#include "NodeGroup.hpp"
+#include "NodeGroupGraphicsObject.hpp"
 #include "ConnectionGraphicsObject.hpp"
 #include "StyleCollection.hpp"
 
 using QtNodes::FlowView;
 using QtNodes::FlowScene;
+using QtNodes::Node;
 
 FlowView::
 FlowView(QWidget *parent)
@@ -102,6 +105,7 @@ void
 FlowView::
 contextMenuEvent(QContextMenuEvent *event)
 {
+
   if (itemAt(event->pos()))
   {
     QGraphicsView::contextMenuEvent(event);
@@ -276,7 +280,6 @@ deleteSelectedNodes()
   }
 }
 
-
 void
 FlowView::
 keyPressEvent(QKeyEvent *event)
@@ -321,6 +324,22 @@ mousePressEvent(QMouseEvent *event)
   {
     _clickPos = mapToScene(event->pos());
   }
+}
+
+void
+FlowView::
+mouseReleaseEvent(QMouseEvent *event)
+{
+    if ((event->modifiers() & Qt::ShiftModifier))
+    {
+        auto& group = _scene->createGroup(mapToScene(rubberBandRect()).boundingRect());
+        for (QGraphicsItem* item: items(rubberBandRect())) {
+            if (item->type() == QGraphicsItem::UserType + 1) {
+                item->setParentItem(&(group.graphicsObject()));
+            }
+        }
+    }
+    QGraphicsView::mouseReleaseEvent(event);
 }
 
 

@@ -8,6 +8,7 @@ namespace QtNodes
 {
 
 class FlowScene;
+class Node;
 
 class NODE_EDITOR_PUBLIC FlowView
   : public QGraphicsView
@@ -46,6 +47,8 @@ protected:
   void keyReleaseEvent(QKeyEvent *event) override;
 
   void mousePressEvent(QMouseEvent *event) override;
+
+  void mouseReleaseEvent(QMouseEvent *event) override;
 
   void mouseMoveEvent(QMouseEvent *event) override;
 
