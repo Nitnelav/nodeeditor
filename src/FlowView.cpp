@@ -286,6 +286,9 @@ keyPressEvent(QKeyEvent *event)
 {
   switch (event->key())
   {
+    case Qt::Key_Control:
+      setDragMode(QGraphicsView::RubberBandDrag);
+      break;
     case Qt::Key_Shift:
       setDragMode(QGraphicsView::RubberBandDrag);
       break;
@@ -293,7 +296,6 @@ keyPressEvent(QKeyEvent *event)
     default:
       break;
   }
-
   QGraphicsView::keyPressEvent(event);
 }
 
@@ -304,6 +306,9 @@ keyReleaseEvent(QKeyEvent *event)
 {
   switch (event->key())
   {
+    case Qt::Key_Control:
+      setDragMode(QGraphicsView::ScrollHandDrag);
+      break;
     case Qt::Key_Shift:
       setDragMode(QGraphicsView::ScrollHandDrag);
       break;
@@ -319,11 +324,16 @@ void
 FlowView::
 mousePressEvent(QMouseEvent *event)
 {
-  QGraphicsView::mousePressEvent(event);
+  if (event->button() == Qt::MiddleButton)
+  {
+    _clickPos = mapToScene(event->pos());
+    return;
+  }
   if (event->button() == Qt::LeftButton)
   {
     _clickPos = mapToScene(event->pos());
   }
+  QGraphicsView::mousePressEvent(event);
 }
 
 void
@@ -347,16 +357,16 @@ void
 FlowView::
 mouseMoveEvent(QMouseEvent *event)
 {
-  QGraphicsView::mouseMoveEvent(event);
-  if (scene()->mouseGrabberItem() == nullptr && event->buttons() == Qt::LeftButton)
+  if (scene()->mouseGrabberItem() == nullptr && (event->buttons() == Qt::MiddleButton || event->buttons() == Qt::LeftButton))
   {
     // Make sure shift is not being pressed
-    if ((event->modifiers() & Qt::ShiftModifier) == 0)
+    if ((event->modifiers() & Qt::ShiftModifier) == 0 && (event->modifiers() & Qt::ControlModifier) == 0)
     {
       QPointF difference = _clickPos - mapToScene(event->pos());
       setSceneRect(sceneRect().translated(difference.x(), difference.y()));
     }
   }
+  QGraphicsView::mouseMoveEvent(event);
 }
 
 
