@@ -262,7 +262,7 @@ removeNode(Node& node)
   _nodes.erase(node.id());
 }
 
-QtNodes::NodeGroup &FlowScene::createGroup(QRectF rubberBandRect)
+NodeGroup &FlowScene::createGroup(QRectF rubberBandRect)
 {
     auto group = detail::make_unique<NodeGroup>();
     auto ggo  = detail::make_unique<NodeGroupGraphicsObject>(rubberBandRect, *this, *group);
@@ -273,6 +273,38 @@ QtNodes::NodeGroup &FlowScene::createGroup(QRectF rubberBandRect)
     _groups[group->id()] = std::move(group);
 
     return *groupPtr;
+}
+
+NodeGroup&
+FlowScene::
+restoreGroup(QJsonObject const& groupJson)
+{
+    QRectF initRect;
+    auto group = detail::make_unique<NodeGroup>();
+    auto ggo  = detail::make_unique<NodeGroupGraphicsObject>(initRect, *this, *group);
+
+    group->setGraphicsObject(std::move(ggo));
+
+    group->restore(groupJson);
+
+    auto groupPtr = group.get();
+    _groups[group->id()] = std::move(group);
+
+    return *groupPtr;
+}
+
+void
+FlowScene::
+removeGroup(NodeGroup& group)
+{
+    for (auto item: group.graphicsObject().childItems()) {
+        NodeGraphicsObject* ngo = static_cast<NodeGraphicsObject*>(item);
+        QPointF position = ngo->scenePos();
+        ngo->setParentItem(nullptr);
+        ngo->setPos(position);
+        ngo->moveConnections();
+    }
+    _groups.erase(group.id());
 }
 
 
@@ -393,7 +425,7 @@ QPointF
 FlowScene::
 getNodePosition(const Node& node) const
 {
-  return node.nodeGraphicsObject().pos();
+  return node.nodeGraphicsObject().scenePos();
 }
 
 
@@ -486,6 +518,12 @@ clearScene()
   {
     removeNode( *_nodes.begin()->second );
   }
+
+  while (_groups.size() > 0)
+  {
+    removeGroup(*_groups.begin()->second );
+  }
+
 }
 
 
@@ -571,6 +609,17 @@ saveToMemory() const
 
   sceneJson["connections"] = connectionJsonArray;
 
+  QJsonArray groupsJsonArray;
+
+  for (auto const & pair : _groups)
+  {
+    auto const &group = pair.second;
+
+    groupsJsonArray.append(group->save());
+  }
+
+  sceneJson["groups"] = groupsJsonArray;
+
   QJsonDocument document(sceneJson);
 
   return document.toJson();
@@ -595,6 +644,13 @@ loadFromMemory(const QByteArray& data)
   for (QJsonValueRef connection : connectionJsonArray)
   {
     restoreConnection(connection.toObject());
+  }
+
+  QJsonArray groupsJsonArray = jsonDocument["groups"].toArray();
+
+  for (QJsonValueRef group : groupsJsonArray)
+  {
+    restoreGroup(group.toObject());
   }
 }
 

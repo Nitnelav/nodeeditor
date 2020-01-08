@@ -61,7 +61,7 @@ NodeGraphicsObject(FlowScene &scene,
 
   // connect to the move signals to emit the move signals in FlowScene
   auto onMoveSlot = [this] {
-    _scene.nodeMoved(_node, pos());
+    _scene.nodeMoved(_node, scenePos());
   };
   connect(this, &QGraphicsObject::xChanged, this, onMoveSlot);
   connect(this, &QGraphicsObject::yChanged, this, onMoveSlot);
@@ -329,12 +329,12 @@ mouseReleaseEvent(QGraphicsSceneMouseEvent* event)
 
   auto items = _scene.items(mapToScene(boundingRect()).boundingRect());
   int count = 0;
-  for (QGraphicsItem* group: items)
+  for (QGraphicsItem* item: items)
   {
-    if (group->type() == QGraphicsItem::UserType + 2)
+    if (item->type() == QGraphicsItem::UserType + 3)
     {
-        QPointF position = group->mapFromScene(scenePos());
-        setParentItem(group);
+        QPointF position = item->mapFromScene(scenePos());
+        setParentItem(item);
         setPos(position);
         count++;
     }

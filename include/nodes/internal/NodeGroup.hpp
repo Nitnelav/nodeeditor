@@ -4,6 +4,7 @@
 #include <QRectF>
 #include <QUuid>
 
+#include "Serializable.hpp"
 #include "NodeGroupGraphicsObject.hpp"
 #include "memory.hpp"
 
@@ -11,7 +12,7 @@ namespace QtNodes {
 
 class NodeGroupGraphicsObject;
 
-class NodeGroup: public QObject
+class NodeGroup: public QObject, public Serializable
 {
     Q_OBJECT
 
@@ -30,6 +31,13 @@ public:
 
     QColor color(int alpha = 255) const;
     void setColor(const QColor &color);
+
+public:
+    QJsonObject
+    save() const override;
+
+    void
+    restore(QJsonObject const &json) override;
 
 private:
     QUuid _uid;

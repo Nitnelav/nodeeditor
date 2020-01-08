@@ -37,12 +37,14 @@ public:
     QRectF
     boundingRect() const override;
 
-    enum { Type = UserType + 2 };
+    enum { Type = UserType + 3 };
 
     int type() const override { return Type; }
 
-    QRectF resizeRect() const;
-    QPolygonF resizePoly() const;
+    void setWidth(double width);
+    void setHeight(double height);
+
+    void updateChilds();
 
 protected:
   void
@@ -89,6 +91,9 @@ private:
 
   bool _hovered = false;
   bool _resizing = false;
+
+  QRectF resizeRect() const;
+  QPolygonF resizePoly() const;
 
 };
 }

@@ -54,6 +54,28 @@ QRectF NodeGroupGraphicsObject::boundingRect() const
     return QRectF(_topLeft, QSizeF(_width, _height));
 }
 
+void NodeGroupGraphicsObject::setWidth(double width)
+{
+    prepareGeometryChange();
+
+    _width = width;
+    if (_width < 50) {
+        _width = 50;
+    }
+    update();
+}
+
+void NodeGroupGraphicsObject::setHeight(double height)
+{
+    prepareGeometryChange();
+
+    _height= height;
+    if (_height < 50) {
+        _height = 50;
+    }
+    update();
+}
+
 QRectF NodeGroupGraphicsObject::resizeRect() const
 {
     unsigned int rectSize = 20;
@@ -143,22 +165,27 @@ void NodeGroupGraphicsObject::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     return QGraphicsObject::mouseMoveEvent(event);
 }
 
+void NodeGroupGraphicsObject::updateChilds()
+{
+    QList<QGraphicsItem *> overlapItems = collidingItems();
+    for (QGraphicsItem* item: overlapItems) {
+        QPointF position = mapFromScene(item->scenePos());
+        item->setParentItem(this);
+        item->setPos(position);
+    }
+    for (QGraphicsItem* item: childItems()) {
+        if (!overlapItems.contains(item)) {
+            QPointF position = item->scenePos();
+            item->setParentItem(nullptr);
+            item->setPos(position);
+        }
+    }
+}
+
 void NodeGroupGraphicsObject::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     if (_resizing) {
-        QList<QGraphicsItem *> overlapItems = collidingItems();
-        for (QGraphicsItem* item: overlapItems) {
-            QPointF position = mapFromScene(item->scenePos());
-            item->setParentItem(this);
-            item->setPos(position);
-        }
-        for (QGraphicsItem* item: childItems()) {
-            if (!overlapItems.contains(item)) {
-                QPointF position = item->scenePos();
-                item->setParentItem(nullptr);
-                item->setPos(position);
-            }
-        }
+        updateChilds();
     }
     _resizing = false;
     return QGraphicsObject::mouseReleaseEvent(event);

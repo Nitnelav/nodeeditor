@@ -66,6 +66,10 @@ public:
 
   NodeGroup& createGroup(QRectF rubberBandRect);
 
+  NodeGroup& restoreGroup(QJsonObject const& groupJson);
+
+  void removeGroup(NodeGroup& group);
+
   DataModelRegistry&registry() const;
 
   void setRegistry(std::shared_ptr<DataModelRegistry> registry);
