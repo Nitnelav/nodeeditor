@@ -262,7 +262,7 @@ removeNode(Node& node)
   _nodes.erase(node.id());
 }
 
-NodeGroup &FlowScene::createGroup(QRectF rubberBandRect)
+NodeGroup& FlowScene::createGroup(QRectF rubberBandRect)
 {
     auto group = detail::make_unique<NodeGroup>();
     auto ggo  = detail::make_unique<NodeGroupGraphicsObject>(rubberBandRect, *this, *group);
@@ -632,6 +632,13 @@ loadFromMemory(const QByteArray& data)
 {
   QJsonObject const jsonDocument = QJsonDocument::fromJson(data).object();
 
+  QJsonArray groupsJsonArray = jsonDocument["groups"].toArray();
+
+  for (QJsonValueRef group : groupsJsonArray)
+  {
+    restoreGroup(group.toObject());
+  }
+
   QJsonArray nodesJsonArray = jsonDocument["nodes"].toArray();
 
   for (QJsonValueRef node : nodesJsonArray)
@@ -644,13 +651,6 @@ loadFromMemory(const QByteArray& data)
   for (QJsonValueRef connection : connectionJsonArray)
   {
     restoreConnection(connection.toObject());
-  }
-
-  QJsonArray groupsJsonArray = jsonDocument["groups"].toArray();
-
-  for (QJsonValueRef group : groupsJsonArray)
-  {
-    restoreGroup(group.toObject());
   }
 }
 

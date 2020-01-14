@@ -343,15 +343,18 @@ mouseReleaseEvent(QMouseEvent *event)
     if ((event->modifiers() & Qt::ShiftModifier))
     {
         auto& group = _scene->createGroup(mapToScene(rubberBandRect()).boundingRect());
-        for (QGraphicsItem* item: items(rubberBandRect())) {
+        for (QGraphicsItem* item: group.graphicsObject().collidingItems()) {
             if (item->type() == QGraphicsItem::UserType + 1) {
-                item->setParentItem(&(group.graphicsObject()));
+                NodeGraphicsObject* ngo = static_cast<NodeGraphicsObject*>(item);
+                QPointF position = group.graphicsObject().mapFromScene(ngo->scenePos());
+                ngo->setParentItem(&(group.graphicsObject()));
+                ngo->setPos(position);
+                ngo->moveConnections();
             }
         }
     }
     QGraphicsView::mouseReleaseEvent(event);
 }
-
 
 void
 FlowView::

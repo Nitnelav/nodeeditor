@@ -66,8 +66,8 @@ QJsonObject NodeGroup::save() const
     groupJson["title"] = _title;
 
     QJsonObject obj;
-    obj["x"] = _graphicsObject->pos().x();
-    obj["y"] = _graphicsObject->pos().y();
+    obj["x"] = _graphicsObject->scenePos().x();
+    obj["y"] = _graphicsObject->scenePos().y();
     obj["w"] = _graphicsObject->boundingRect().width();
     obj["h"] = _graphicsObject->boundingRect().height();
     groupJson["position"] = obj;

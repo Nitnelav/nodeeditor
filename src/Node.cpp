@@ -75,6 +75,24 @@ restore(QJsonObject const& json)
                     positionJson["y"].toDouble());
   _nodeGraphicsObject->setPos(point);
 
+  auto items = _nodeGraphicsObject->collidingItems();
+  int count = 0;
+  for (QGraphicsItem* item: items)
+  {
+    if (item->type() == QGraphicsItem::UserType + 3)
+    {
+        QPointF position = item->mapFromScene(_nodeGraphicsObject->scenePos());
+        _nodeGraphicsObject->setParentItem(item);
+        _nodeGraphicsObject->setPos(position);
+        count++;
+    }
+  }
+  if (count == 0) {
+      QPointF position = _nodeGraphicsObject->scenePos();
+      _nodeGraphicsObject->setParentItem(nullptr);
+      _nodeGraphicsObject->setPos(position);
+  }
+
   _nodeDataModel->restore(json["model"].toObject());
 }
 

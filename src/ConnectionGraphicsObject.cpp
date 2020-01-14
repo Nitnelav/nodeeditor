@@ -40,7 +40,7 @@ ConnectionGraphicsObject(FlowScene &scene,
 
   // addGraphicsEffect();
 
-  setZValue(-1.0);
+  setZValue(-2.0);
 }
 
 

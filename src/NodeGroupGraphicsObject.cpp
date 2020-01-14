@@ -31,7 +31,8 @@ NodeGroupGraphicsObject::NodeGroupGraphicsObject(QRectF rubberBandRect, FlowScen
 
     setAcceptHoverEvents(true);
 
-    setZValue(-1);
+    setZValue(-1.0);
+    setPos(_topLeft);
 }
 
 NodeGroupGraphicsObject::~NodeGroupGraphicsObject()
@@ -51,7 +52,7 @@ const NodeGroup &NodeGroupGraphicsObject::nodeGroup() const
 
 QRectF NodeGroupGraphicsObject::boundingRect() const
 {
-    return QRectF(_topLeft, QSizeF(_width, _height));
+    return QRectF(0, 0, _width, _height);
 }
 
 void NodeGroupGraphicsObject::setWidth(double width)
@@ -80,7 +81,7 @@ QRectF NodeGroupGraphicsObject::resizeRect() const
 {
     unsigned int rectSize = 20;
     QRectF rect(_width - rectSize, _height - rectSize, rectSize, rectSize);
-    return rect.translated(_topLeft);
+    return rect;
 }
 
 QPolygonF NodeGroupGraphicsObject::resizePoly() const
@@ -90,7 +91,7 @@ QPolygonF NodeGroupGraphicsObject::resizePoly() const
     poly << QPointF(_width - rectSize, _height);
     poly << QPointF(_width, _height - rectSize);
     poly << QPointF(_width, _height);
-    return poly.translated(_topLeft);
+    return poly;
 }
 
 void NodeGroupGraphicsObject::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -169,12 +170,14 @@ void NodeGroupGraphicsObject::updateChilds()
 {
     QList<QGraphicsItem *> overlapItems = collidingItems();
     for (QGraphicsItem* item: overlapItems) {
-        QPointF position = mapFromScene(item->scenePos());
-        item->setParentItem(this);
-        item->setPos(position);
+        if (item->type() == (UserType + 1)) {
+            QPointF position = mapFromScene(item->scenePos());
+            item->setParentItem(this);
+            item->setPos(position);
+        }
     }
     for (QGraphicsItem* item: childItems()) {
-        if (!overlapItems.contains(item)) {
+        if (!overlapItems.contains(item) && item->type() == (UserType + 1)) {
             QPointF position = item->scenePos();
             item->setParentItem(nullptr);
             item->setPos(position);
